@@ -62,12 +62,11 @@ export class BoardViewer extends DocumentViewer<
         const selectableItems = new Map<string, unknown>();
         for (const { bbox } of items) {
             const item = bbox.context;
-            if (item instanceof board_items.Footprint) {
-                selectableItems.set(`Footprint: ${item.reference}`, item);
-            } else if (kicad_common.isNetInfo(item)) {
+            // Probe UX: only net-bearing copper (pads, tracks, vias) is
+            // selectable — skip footprint bodies so a click always resolves to
+            // a net the user could physically probe.
+            if (kicad_common.isNetInfo(item)) {
                 selectableItems.set(`Net: ${item.netname}`, item);
-            } else {
-                console.log(item);
             }
         }
 
