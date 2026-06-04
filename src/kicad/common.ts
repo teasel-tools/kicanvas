@@ -452,16 +452,27 @@ export class Net {
     name: string;
 
     constructor(expr: Parseable) {
-        // (net 2 "+3V3")
-        Object.assign(
-            this,
-            parse_expr(
-                expr,
-                P.start("net"),
-                P.positional("number", T.number),
-                P.positional("name", T.string),
-            ),
-        );
+        // Parse net tokens directly — the positional parser misroutes the
+        // KiCad 9 "named-only" form into the number slot. Two shapes:
+        //   (net 2 "+3V3")  — classic numbered form
+        //   (net "+3V3")    — KiCad 9 named-only form (no number)
+        let toks: unknown = expr;
+        if (
+            Array.isArray(toks) &&
+            toks.length === 1 &&
+            Array.isArray(toks[0])
+        ) {
+            toks = toks[0];
+        }
+        const rest = Array.isArray(toks) ? (toks as unknown[]).slice(1) : [];
+        if (rest.length >= 2 && typeof rest[0] === "number") {
+            this.number = rest[0] as number;
+            this.name = String(rest[1]);
+        } else if (rest.length >= 1) {
+            // named-only: KicadPCB synthesizes the number after load
+            this.number = undefined as unknown as number;
+            this.name = String(rest[0]);
+        }
     }
 }
 

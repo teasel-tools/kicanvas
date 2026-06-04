@@ -109,6 +109,57 @@ export class KicadPCB {
 
         // sort the array by net_number
         this.nets.sort((a, b) => a.number - b.number);
+
+        // KiCad 9 "named-only" net format: pads carry (net "name") with no
+        // top-level numbered net table. Synthesize one so number-based lookups
+        // (get_netname_by_number, getNetNumber, highlight_net) work.
+        if (this.nets.length === 0) {
+            const number_by_name = new Map<string, number>([["", 0]]);
+            const ensure = (name: string): number => {
+                if (!number_by_name.has(name)) {
+                    number_by_name.set(name, number_by_name.size);
+                }
+                return number_by_name.get(name)!;
+            };
+            // Pads carry a Net object (its `name` parsed above); segments /
+            // arcs / vias / zones carry the raw net token (a string here).
+            for (const fp of this.footprints) {
+                for (const pad of fp.pads) {
+                    const net = pad.net as unknown as {
+                        name?: string;
+                        number?: number;
+                    };
+                    if (net && typeof net.name === "string") {
+                        net.number = ensure(net.name);
+                    }
+                }
+            }
+            for (const item of [
+                ...this.segments,
+                ...this.vias,
+            ] as unknown as { net: unknown }[]) {
+                if (typeof item.net === "string") {
+                    item.net = ensure(item.net) as unknown as never;
+                }
+            }
+            for (const zone of this.zones as unknown as {
+                net: unknown;
+                net_name?: string;
+            }[]) {
+                const name =
+                    typeof zone.net === "string" ? zone.net : zone.net_name;
+                if (typeof name === "string") {
+                    zone.net = ensure(name) as unknown as never;
+                }
+            }
+            this.nets = [];
+            for (const [name, number] of number_by_name) {
+                const net = Object.create(Net.prototype) as Net;
+                net.number = number;
+                net.name = name;
+                this.nets[number] = net;
+            }
+        }
     }
 
     *items() {
@@ -205,7 +256,7 @@ export class LineSegment implements HasUniqueID, HasNetInfo {
                 P.vec2("end"),
                 P.pair("width", T.number),
                 P.pair("layer", T.string),
-                P.pair("net", T.number),
+                P.pair("net", T.any), // T.any: keep KiCad 9 named nets (string)
                 P.atom("locked"),
                 P.pair("uuid", T.string),
                 P.pair("tstamp", T.string),
@@ -257,7 +308,7 @@ export class ArcSegment implements HasUniqueID, HasNetInfo {
                 P.vec2("end"),
                 P.pair("width", T.number),
                 P.pair("layer", T.string),
-                P.pair("net", T.number),
+                P.pair("net", T.any), // T.any: keep KiCad 9 named nets (string)
                 P.atom("locked"),
                 P.pair("tstamp", T.string),
                 P.pair("uuid", T.string),
@@ -302,7 +353,7 @@ export class Via implements HasUniqueID, HasNetInfo {
                 P.pair("size", T.number),
                 P.pair("drill", T.number),
                 P.list("layers", T.string),
-                P.pair("net", T.number),
+                P.pair("net", T.any), // T.any: keep KiCad 9 named nets (string)
                 P.atom("locked"),
                 P.atom("free"),
                 P.atom("remove_unused_layers"),
@@ -354,7 +405,7 @@ export class Zone implements HasUniqueID {
                 expr,
                 P.start("zone"),
                 P.atom("locked"),
-                P.pair("net", T.number),
+                P.pair("net", T.any), // T.any: keep KiCad 9 named nets (string)
                 P.pair("net_name", T.string),
                 P.pair("net_name", T.string),
                 P.pair("name", T.string),
