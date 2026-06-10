@@ -207,6 +207,81 @@
 }
 
 /*
+    teasel theme — neutral slate + jade green.
+
+    Overrides kicanvas's Monokai purple/teal so the embed's chrome matches the
+    teasel web UI. This block comes after the flat + gradient blocks above, so it
+    wins; redefining the gradient vars recolors every surface that references them
+    (activity side bar, panels, dropdowns, resizer…).
+*/
+:host {
+    --bg: #0e1118;
+    --fg: #eef1f4;
+
+    /* neutral slate surfaces (were purple/cyan gradients) */
+    --gradient-purple-green-light: linear-gradient(10deg, #1a212c, #222a37) 0 0 fixed;
+    --gradient-purple-blue-medium: linear-gradient(10deg, #222a37, #2b3445) 0 0 fixed;
+    --gradient-purple-blue-dark: linear-gradient(10deg, #0e1118, #141a26) 0 0 fixed;
+    --gradient-cyan-blue-light: linear-gradient(10deg, #006d46, #00895a) 0 0 fixed;
+    /* jade-green highlight (hover / active) */
+    --gradient-purple-green-highlight: linear-gradient(10deg, #029764, #03b07a) 0 0 fixed;
+
+    --scrollbar-bg: #0e1118;
+    --scrollbar-fg: #02976477;
+    --scrollbar-hover-bg: #029764bb;
+    --scrollbar-hover-fg: #029764bb;
+    --scrollbar-active-fg: #029764;
+
+    --activity-bar-active-bg: #0e1118;
+
+    --tooltip-bg: #007a50;
+    --tooltip-fg: #f8f8f8;
+    --tooltip-border: 1px solid #0e1118;
+
+    --resizer-bg: #2b3445;
+    --resizer-active-bg: #029764;
+
+    --panel-border: 2px solid #202632;
+    --panel-title-border: 1px solid #2b3445;
+    --panel-title-button-fg: #b6e8d3;
+    --panel-title-button-hover-bg: #029764;
+    --panel-title-button-hover-fg: #07140e;
+
+    --button-bg: #029764;
+    --button-fg: #07140e;
+    --button-hover-bg: #03b07a;
+    --button-hover-fg: #07140e;
+    --button-focus-outline: 1px solid #029764;
+    --button-selected-bg: #007a50;
+    --button-selected-fg: #07140e;
+    --button-outline-bg: #202632;
+    --button-outline-fg: #eef1f4;
+    --button-outline-hover-fg: #03b07a;
+    --button-toolbar-hover-fg: #03b07a;
+    --button-toolbar-alt-hover-fg: #07140e;
+    --button-menu-hover-fg: #03b07a;
+
+    --dropdown-fg: #eef1f4;
+
+    --input-bg: #0e1118;
+    --input-fg: #eef1f4;
+    --input-border: 1px solid #333c4e;
+    --input-accent: #029764;
+    --input-focus-outline: 1px solid #029764;
+    --input-placeholder: #6b7689;
+    --input-range-bg: #333c4e;
+    --input-range-hover-bg: #029764;
+
+    --list-item-active-bg: #006d46;
+    --list-item-active-fg: #eef1f4;
+    --list-item-hover-bg: #029764;
+    --list-item-hover-fg: #07140e;
+
+    --grid-outline: #202632;
+    --focus-overlay-fg: #f8f8f8;
+}
+
+/*
     Scrollbar
 */
 

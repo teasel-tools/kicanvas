@@ -23,7 +23,7 @@ const common_styles = css`
 
     :host {
         scrollbar-width: thin;
-        scrollbar-color: #ae81ff #282634;
+        scrollbar-color: #029764 #202632;
     }
 
     ::-webkit-scrollbar {
